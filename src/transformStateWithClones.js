@@ -8,40 +8,46 @@
  */
 
 function transformStateWithClones(state, actions) {
-  const hystoryArray = [];
+  const historyArray = [];
   const stateCopy = { ...state };
 
   for (const action of actions) {
-    const newCopy = Object.assign({}, hystoryArray[hystoryArray.length - 1]);
+    const newCopy = Object.assign({}, historyArray[historyArray.length - 1]);
+    let stateStep;
 
     switch (action.type) {
       case 'addProperties':
-        if (hystoryArray.length >= 1) {
-          hystoryArray.push(addProperties(newCopy, action.extraData));
+        if (historyArray.length >= 1) {
+          stateStep = addProperties(newCopy, action.extraData);
           break;
         } else {
-          hystoryArray.push(addProperties(stateCopy, action.extraData));
+          stateStep = addProperties(stateCopy, action.extraData);
           break;
         }
 
       case 'removeProperties':
-        if (hystoryArray.length >= 1) {
-          hystoryArray.push(removeProperties(newCopy, action.keysToRemove));
+        if (historyArray.length >= 1) {
+          stateStep = removeProperties(newCopy, action.keysToRemove);
           break;
         } else {
-          hystoryArray.push(removeProperties(stateCopy, action.keysToRemove));
+          stateStep = removeProperties(stateCopy, action.keysToRemove);
           break;
         }
 
       case 'clear':
-        if (hystoryArray.length >= 1) {
-          hystoryArray.push(clearProperties(newCopy));
+        if (historyArray.length >= 1) {
+          stateStep = clearProperties(newCopy);
           break;
         } else {
-          hystoryArray.push(clearProperties(stateCopy));
+          stateStep = clearProperties(stateCopy);
           break;
         }
+
+      default:
+        return 'Uncorrectable types';
     }
+
+    historyArray.push(stateStep);
   }
 
   function addProperties(stateCopyObject, extraData) {
@@ -64,7 +70,7 @@ function transformStateWithClones(state, actions) {
     return stateCopyObject;
   }
 
-  return hystoryArray;
+  return historyArray;
 }
 
 module.exports = transformStateWithClones;
